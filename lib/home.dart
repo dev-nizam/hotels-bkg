@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hotels/MySearchdelegate.dart';
+import 'package:hotels/Search.dart';
 
 class ScreenHome extends StatefulWidget {
   const ScreenHome({Key? key}) : super(key: key);

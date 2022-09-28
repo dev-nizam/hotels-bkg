@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hotels/Search.dart';
+import 'package:hotels/bloc/SearchBloc/search_bloc.dart';
 import 'package:hotels/home.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp( MultiBlocProvider(
+      providers: [
+      BlocProvider(
+      create: (BuildContext context)=>SearchBloc()
+      )
+      ],
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -25,7 +34,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: ScreenHome(),
+      home: SearchBar(),
     );
   }
 }
