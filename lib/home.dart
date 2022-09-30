@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotels/Search.dart';
+import 'package:hotels/bloc/hotelBloc/hotel_bloc.dart';
+import 'package:hotels/model/HotelModel.dart';
 
 class ScreenHome extends StatefulWidget {
-  const ScreenHome({Key? key}) : super(key: key);
-
+   ScreenHome({Key? key, required this.id, required this.inDate, required this.outDate}) : super(key: key);
+  final String id ;
+  final String inDate ;
+  final String outDate ;
   @override
   State<ScreenHome> createState() => _ScreenHomeState();
 }
 
 class _ScreenHomeState extends State<ScreenHome> {
+  late HotelModel hotelModel;
+  void initState() {
+    BlocProvider.of<HotelBloc>(context).add(GetHotel(widget.inDate, widget.outDate,widget.id));
+    // TODO: implement initState
+    super.initState();
+  }
 
   bool isClicked = false;
   bool isLocationClicked = false;
@@ -59,25 +70,45 @@ class _ScreenHomeState extends State<ScreenHome> {
           }, icon: Icon(Icons.location_on_outlined)),
         ],
       ),
-      body: ListView.separated(itemBuilder: (ctx,index){
+      body: BlocBuilder<HotelBloc, HotelState>(
+  builder: (context, state) {
+    if(state is HotelLoading){
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }if(state is HotelError){
+      return Center(
+        child: Text("something went wrong "),
+      );
+    }if(state is HotelLoaded) {
+      hotelModel = BlocProvider
+          .of<HotelBloc>(context)
+          .hotelModel;
+
+      return ListView.separated(itemBuilder: (ctx, index) {
         return GestureDetector(
-          onTap: (){},
+          onTap: () {},
 
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: NetworkImage("https://dynamic-media-cdn.tripadvisor.com/media/photo-o/07/77/f7/18/green-land-farmhouses.jpg?w=900&h=-1&s=1"),
+              backgroundImage: NetworkImage(
+                  "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/07/77/f7/18/green-land-farmhouses.jpg?w=900&h=-1&s=1"),
             ),
-            title: Text("Greenland"),
-            subtitle: Text("Price ${2000}"),
+            title: Text(hotelModel.data!.body!.searchResults!.results![index]
+                .name.toString()),
+            subtitle: Text("Price ${hotelModel.data!.body!.searchResults!
+                .results![index].geoBullets.toString()}"),
           ),
         );
-
-      }, separatorBuilder: (ctx,index){
-return  Divider(
-thickness: 5,
-);
-    }, itemCount:10,
-      )
+      }, separatorBuilder: (ctx, index) {
+        return Divider(
+          thickness: 5,
+        );
+      }, itemCount:hotelModel.data!.body!.searchResults!.results!.length,
+      );
+    }return Container();
+  },
+)
     );
   }
 }
